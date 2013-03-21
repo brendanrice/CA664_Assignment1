@@ -13,20 +13,20 @@ import model.line.Line;
 import model.line.Position;
 import model.line.SelectedText;
 
-public class Model implements ModelInterface {
+public class NotepadModel implements ModelInterface {
 	private List<Line> text;
 	
 	private final int DEFAULT_LINES = 100;
 	
 
-	public Model() {
+	public NotepadModel() {
 		text = new ArrayList<Line>(DEFAULT_LINES);
 		for (int i = 0; i < text.size(); i++) {
 			text.add(new Line());
 		}
 	}
 	
-	public Model(String path) {
+	public NotepadModel(String path) {
 		BufferedReader br;
 		text = new ArrayList<Line>(DEFAULT_LINES);
 		try {
@@ -52,14 +52,18 @@ public class Model implements ModelInterface {
 	
 	public void openFile(String path) {
 		BufferedReader br;
+		text = new ArrayList<Line>(DEFAULT_LINES);
 		try {
-			String line;
+			String string;
+			Line line;
 			br = new BufferedReader(new FileReader(path)); 
 			
-			while ((line = br.readLine()) != null) {
-				System.out.println(line);
+			while ((string = br.readLine()) != null) {
+				//System.out.println(line);
+				line = new Line(string);
+				text.add(line);
+				System.out.println(line.toString());
 			}
-			
 			br.close();
 		} 
 		catch (IOException e) {
@@ -222,6 +226,18 @@ public class Model implements ModelInterface {
 	public void undo() {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public List<Line> getText() {
+		return this.text;
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < text.size(); i++) {
+			sb.append(text.get(i).toString() + "\n");
+		}
+		return sb.toString();
 	}
 
 }

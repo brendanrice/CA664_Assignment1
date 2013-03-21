@@ -36,4 +36,6 @@ public interface ModelInterface {
 	public void undo();
 	public void redo();
 	
+	public String toString();
+	
 }

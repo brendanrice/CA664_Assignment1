@@ -10,7 +10,7 @@ public class ModelTest {
 	
 	public static void main(String[] args) {
 		
-		Model myModel = new Model(inputPath);
+		NotepadModel myModel = new NotepadModel(inputPath);
 		myModel.saveFile(outputPath);
 		System.out.println("Character Count: " + myModel.getCharCount());
 		System.out.println("Line Count: " + myModel.getLineCount());
