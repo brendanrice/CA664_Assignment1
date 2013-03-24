@@ -7,3 +7,6 @@ Ow! how
 
 
 how how how
+
+Please go to http://google.com and then mailto:brendan@rice.com to 
+download a file from www.google.com ftp://brendanrice:pass@github/assignemnt.txt

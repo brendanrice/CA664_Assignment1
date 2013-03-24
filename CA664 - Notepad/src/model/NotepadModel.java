@@ -5,9 +5,11 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import model.line.Line;
 import model.line.Position;
@@ -211,10 +213,26 @@ public class NotepadModel implements ModelInterface {
 	}
 
 	@Override
-	public String[] retrieveLinks() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public List<String> retrieveLinks() {
+        //String text = "Please go to http://google.com and then mailto:brendan@rice.com to download a file from www.google.com ftp://brendanrice:pass@github/assignemnt.txt";
+		if( text == null) {
+            throw new IllegalArgumentException("Input text must not be null");
+        }
+        List<String> resultList = new ArrayList<String>();
+        String regexp = "(((https?|mailto|ftp):(//)*|www[.])[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
+        Pattern p = Pattern.compile(regexp,Pattern.CASE_INSENSITIVE);
+
+        StringBuffer inputStr = new StringBuffer();
+    	for(Line singleLine: text){
+    		inputStr.append(singleLine);
+    	}
+        Matcher m;
+    	m = p.matcher(inputStr);
+    	while (m.find()) {
+    		resultList.add(m.group());
+    	}
+        return resultList;
+    } 
 
 	@Override
 	public SelectedText select() {

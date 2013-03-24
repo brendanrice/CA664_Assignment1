@@ -13,7 +13,7 @@ public interface ModelInterface {
 	
 	
 	/*** Analysis ***/
-	public String[] retrieveLinks();
+	public List<String> retrieveLinks();
 	// View Statistics
 	public int getWordCount();
 	public int getCharCount();
@@ -21,7 +21,7 @@ public interface ModelInterface {
 	
 	
 	/*** Manipulation ***/
-	public List<Position> find(String text);
+	public List<Position> find(String inputText);
 	// Text Editing
 	public SelectedText select();
 	public String insert(String text, int lineNumber, int charNumber);
