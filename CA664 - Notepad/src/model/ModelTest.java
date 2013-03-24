@@ -23,6 +23,11 @@ public class ModelTest {
 			System.out.println("Position - Line: " + points.get(i).lineNo + ", Char: " + points.get(i).charNo);
 		}
 		
+		List<String> links = myModel.retrieveLinks();
+		for (int i = 0; i < links.size(); i++) {
+			System.out.println("Link: " + links.get(i));
+		}
+		
 	}
 
 }

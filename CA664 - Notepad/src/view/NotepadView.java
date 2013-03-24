@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
@@ -12,29 +13,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionListener;
 
 import model.NotepadModel;
 
 public class NotepadView extends JFrame {
 	private JTextArea textArea;
+	private JSplitPane splitPane;
 	private JFileChooser filePicker;
-	private boolean modified;
-	private JButton buttonNew, buttonOpen, buttonSave, buttonCut, buttonCopy, buttonPaste;
-	private JMenuItem New, Open, Save, SaveAs, Cut, Copy, Paste, Find, WordCount, Exit; 
+	private JPanel linkPanel;
+	private JList<String> linkList;
+	private JScrollPane linkScroller;
+	private boolean modified, linksShowing;
+	private JButton buttonNew, buttonOpen, buttonSave, buttonCut, buttonCopy, buttonPaste, buttonLinks, buttonOpenURL;
+	private JMenuItem New, Open, Save, SaveAs, Cut, Copy, Paste, Find, WordCount, Exit, Links; 
 	private List<JButton> buttonArray;
 	private List<JMenuItem> menuItemArray;
 	private String title;
 	
 	public NotepadView() {
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		textArea = new JTextArea(20, 120);
 		filePicker = new JFileChooser(System.getProperty("user.dir"));
+		linkPanel = new JPanel();
+		linkList = new JList();
+		linkScroller = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		modified = false;
+		linksShowing = false;
 		title = "Untitled";
+		
+		// Set up Link Viewer
+		buttonOpenURL = new JButton("Open URL");
+		linkPanel.setLayout(new BorderLayout());
+		linkPanel.add(linkScroller, BorderLayout.CENTER);
+		linkPanel.add(buttonOpenURL, BorderLayout.SOUTH);
+		linkList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
 		
 		textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		JScrollPane scroller = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
-		this.add(scroller, BorderLayout.CENTER);
+		splitPane.add(scroller);
+		splitPane.setResizeWeight(0.75);
+		
+		this.add(splitPane, BorderLayout.CENTER);
 		this.setUpButtons();
 		this.setUpMenuBar();
 		this.pack(); 
@@ -42,6 +64,19 @@ public class NotepadView extends JFrame {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE); 
 		//setTitle(currentFile); 
 		setVisible(true);
+		
+	}
+	
+	public void displayLinks(String[] links) {
+		if (!linksShowing) {
+			linkList.setListData(links);
+			linkScroller.setViewportView(linkList);
+			splitPane.add(linkPanel);
+			linksShowing = true;
+		} else {
+			splitPane.remove(linkPanel);
+			linksShowing = false;
+		}
 	}
 	
 	private void setUpMenuBar() {
@@ -65,8 +100,9 @@ public class NotepadView extends JFrame {
 		Paste = new JMenuItem("Paste");
 		Find = new JMenuItem("Find");
 		WordCount = new JMenuItem("Word Count");
-		menuEdit.add(Cut); menuEdit.add(Copy); menuEdit.add(Paste); menuEdit.add(new JSeparator()); menuEdit.add(Find); menuEdit.add(new JSeparator()); menuEdit.add(WordCount);
-		menuItemArray.add(Cut); menuItemArray.add(Copy); menuItemArray.add(Paste); menuItemArray.add(Find); menuItemArray.add(WordCount); 
+		Links = new JMenuItem("Display Links");
+		menuEdit.add(Cut); menuEdit.add(Copy); menuEdit.add(Paste); menuEdit.add(new JSeparator()); menuEdit.add(Find); menuEdit.add(new JSeparator()); menuEdit.add(Links); menuEdit.add(WordCount); 
+		menuItemArray.add(Cut); menuItemArray.add(Copy); menuItemArray.add(Paste); menuItemArray.add(Find); menuItemArray.add(WordCount); menuItemArray.add(Links); 
 		
 		JToolBar tools = new JToolBar();
 		this.add(tools, BorderLayout.NORTH);
@@ -77,14 +113,16 @@ public class NotepadView extends JFrame {
 		buttonCut = new JButton(new ImageIcon("resources/cut.gif"));		buttonCut.setName("Cut");
 		buttonCopy = new JButton(new ImageIcon("resources/copy.gif"));		buttonCopy.setName("Copy");
 		buttonPaste = new JButton(new ImageIcon("resources/paste.gif"));	buttonPaste.setName("Paste");
-		tools.add(buttonNew); tools.add(buttonOpen); tools.add(buttonSave); tools.addSeparator(); tools.add(buttonCut); tools.add(buttonCopy); tools.add(buttonPaste); tools.addSeparator();
-		buttonArray.add(buttonNew); buttonArray.add(buttonOpen); buttonArray.add(buttonSave); buttonArray.add(buttonCut); buttonArray.add(buttonCopy); buttonArray.add(buttonPaste); 
+		buttonLinks = new JButton(new ImageIcon("resources/paste.gif"));	buttonLinks.setName("Display Links");
+		tools.add(buttonNew); tools.add(buttonOpen); tools.add(buttonSave); tools.addSeparator(); tools.add(buttonCut); tools.add(buttonCopy); tools.add(buttonPaste); tools.addSeparator(); tools.add(buttonLinks); 
+		buttonArray.add(buttonNew); buttonArray.add(buttonOpen); buttonArray.add(buttonSave); buttonArray.add(buttonCut); buttonArray.add(buttonCopy); buttonArray.add(buttonPaste); buttonArray.add(buttonLinks); 
+		buttonArray.add(buttonOpenURL); 
 		
 		buttonSave.setEnabled(false);
 	}
 	
 	private void setUpButtons() {
-		buttonArray = new ArrayList<JButton>(6);
+		buttonArray = new ArrayList<JButton>(8);
 		menuItemArray = new ArrayList<JMenuItem>(10);
 	}
 	
@@ -110,6 +148,10 @@ public class NotepadView extends JFrame {
 			menuItemArray.get(i).addActionListener(listener);
 		}
 
+	}
+	
+	public void registerListListener(ListSelectionListener listener) {
+		linkList.addListSelectionListener(listener);
 	}
 	
 	public String openFilePicker() {

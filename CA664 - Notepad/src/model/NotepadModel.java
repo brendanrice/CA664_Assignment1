@@ -17,6 +17,7 @@ import model.line.SelectedText;
 
 public class NotepadModel implements ModelInterface {
 	private List<Line> text;
+	private String selectedURL;
 	
 	private final int DEFAULT_LINES = 100;
 	
@@ -257,5 +258,12 @@ public class NotepadModel implements ModelInterface {
 		}
 		return sb.toString();
 	}
-
+	
+	public String getSelectedURL() {
+		return selectedURL;
+	}
+	
+	public void setSelectedURL(String url) {
+		this.selectedURL = url;
+	}
 }
