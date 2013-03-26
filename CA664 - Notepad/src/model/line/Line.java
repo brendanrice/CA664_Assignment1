@@ -2,7 +2,7 @@ package model.line;
 
 public class Line {
 	private static final int CAP = 200;
-	protected char[] chars;
+	public char[] chars;
 	private int logLength;
 	
 	public Line() {

@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,72 +18,47 @@ import model.line.Position;
 import model.line.SelectedText;
 
 public class NotepadModel implements ModelInterface {
-	private List<Line> text;
+	//private List<Line> text;
 	private String selectedURL;
-	
-	private final int DEFAULT_LINES = 100;
-	
+	private String clipboard;
+	private String text;
 
 	public NotepadModel() {
-		text = new ArrayList<Line>(DEFAULT_LINES);
-		for (int i = 0; i < text.size(); i++) {
-			text.add(new Line());
-		}
+		text = new String();
 	}
 	
 	public NotepadModel(String path) {
-		BufferedReader br;
-		text = new ArrayList<Line>(DEFAULT_LINES);
-		try {
-			String string;
-			Line line;
-			br = new BufferedReader(new FileReader(path)); 
-			
-			while ((string = br.readLine()) != null) {
-				//System.out.println(line);
-				line = new Line(string);
-				text.add(line);
-				System.out.println(line.toString());
-				
-			}
-			
-			br.close();
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		}
+		openFile(path);
 	}
 	
 	
 	public void openFile(String path) {
 		BufferedReader br;
-		text = new ArrayList<Line>(DEFAULT_LINES);
 		try {
 			String string;
-			Line line;
 			br = new BufferedReader(new FileReader(path)); 
 			
+			
+			StringBuilder sb = new StringBuilder();
 			while ((string = br.readLine()) != null) {
-				//System.out.println(line);
-				line = new Line(string);
-				text.add(line);
-				System.out.println(line.toString());
+				sb.append(string + "\n");
 			}
+			
+			text = sb.toString();
+			
 			br.close();
 		} 
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
 	public void saveFile(String outputPath) {
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter( new FileWriter(outputPath));
-			for (int i = 0; i < text.size(); i++) {
-				text.get(i).toString();
-				writer.write(text.get(i).toString() + "\n");
-			}
+			writer.write(text);
 		}
 		catch ( IOException e) {
 			e.printStackTrace();
@@ -110,44 +87,40 @@ public class NotepadModel implements ModelInterface {
 	}
 
 	@Override
-	public List<Position> find(String searchString) {
-		List<Position> points = new ArrayList<Position>(0);
-		String line;
+	public List<Integer> find(String searchString) {
+		List<Integer> points = new ArrayList<Integer>(0);
+		
 		int indexInSubstring;
 		int indexTemp;
 		int charNo;
 		int numFound;
-		Position pos;
 		searchString = searchString.toLowerCase();
 		
 		//charNo = line.indexOf(searchString);
-		for (int i = 0; i < text.size(); i++) {
-			line = text.get(i).toString().toLowerCase();
-			indexInSubstring = 0;
-			indexTemp = 0;
-			charNo = 0;
-			numFound = 0;
-			while (line.indexOf(searchString) != -1) {
-				if (numFound == 0) {
-					indexInSubstring = line.indexOf(searchString);
-					indexTemp = indexInSubstring;
-					charNo = indexInSubstring;
-				} else {
-					//indexTemp = indexInSubstring;
-					indexInSubstring = line.indexOf(searchString);
-					indexTemp += indexInSubstring + searchString.length();
-					charNo = indexTemp;
-				}
-				numFound++;
-				//System.out.println("Line: " + i + ",Index: " + charNo);
-				line = line.substring(indexInSubstring + searchString.length());
-				//System.out.println("Substring: " + line);
-				
-				pos = new Position(i, charNo);
-				points.add(pos);
+		String tempText = new String(text.toLowerCase());
+		indexInSubstring = 0;			
+		System.out.println("");
+		indexTemp = 0;
+		charNo = 0;
+		numFound = 0;
+		while (tempText.indexOf(searchString) != -1) {
+			if (numFound == 0) {
+				indexInSubstring = tempText.indexOf(searchString);
+				indexTemp = indexInSubstring;
+				charNo = indexInSubstring;
+			} else {
+				//indexTemp = indexInSubstring;
+				indexInSubstring = tempText.indexOf(searchString);
+				indexTemp += indexInSubstring + searchString.length();
+				charNo = indexTemp;
 			}
+			numFound++;
+			//System.out.println("Line: " + i + ",Index: " + charNo);
+			tempText = tempText.substring(indexInSubstring + searchString.length());
+			//System.out.println("Substring: " + line);
+			
+			points.add(charNo);
 		}
-		
 		
 		return points;
 	}
@@ -166,45 +139,57 @@ public class NotepadModel implements ModelInterface {
 	
 	@Override
 	public int getCharCount() {
-		int charCount = 0;
-		for (int i = 0; i < text.size(); i++) {
-			charCount += text.get(i).getLength();
-		}
+		int charCount = text.toCharArray().length;
 		return charCount;
 	}
 
 	@Override
 	public int getLineCount() {
-		int lineCount = 0;
-		while (lineCount < text.size()) {
-			lineCount++;
-		}
+		String[] lines = text.split("\r\n|\r|\n");
+		int lineCount = lines.length;
 		return lineCount;
 	}
 
 	@Override
 	public int getWordCount() {
-		int wordCount = 0;
-		for (int i = 0; i < text.size(); i++ ) {
-			String[] wordsOnLine = text.get(i).toString().split(" ");
-			for(int j = 0; j < wordsOnLine.length; j++) {
-				wordCount++;
-			}
-		}
-			
+		int wordCount = text.split(" ").length;
 		return wordCount;
 	}
 
 	@Override
-	public String insert(String text, int lineNumber, int charNumber) {
-		// TODO Auto-generated method stub
-		return null;
+	public void insert(String string, int index) {
+		String preText = text.substring(0, index);
+		String postText = text.substring(index);
+		
+		char[] stringArray = string.toCharArray();
+		
+		char[] preArray = preText.toCharArray();
+		char[] postArray = postText.toCharArray();
+		char[] newText = new char[stringArray.length + preArray.length + postArray.length];
+		
+		for (int i = 0; i < preArray.length; i++) {
+			newText[i] = preArray[i];
+		}
+		
+		for (int i = 0; i < stringArray.length; i++) {
+			newText[index + i] = stringArray[i];
+		}
+		
+		for (int i = 0; i < postArray.length; i++) {
+			newText[i] = postArray[i];
+		}
+		
+		this.text = new String(newText);
 	}
 
 	@Override
-	public String insertOver(String text, int lineNumber, int charNumber) {
-		// TODO Auto-generated method stub
-		return null;
+	public void insertOver(String string, int index) {
+		char[] array = text.toCharArray();
+		char[] stringArray = string.toCharArray();
+		for (int i = 0; i < stringArray.length; i++) {
+			array[index + i] = stringArray[i];
+		}
+		this.text = new String(array);
 	}
 	
 	@Override
@@ -220,13 +205,23 @@ public class NotepadModel implements ModelInterface {
             throw new IllegalArgumentException("Input text must not be null");
         }
         List<String> resultList = new ArrayList<String>();
-        String regexp = "(((https?|mailto|ftp):(//)*|www[.])[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
+        String regexp = "(((https?|ftp):(//)*|www[.])[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
         Pattern p = Pattern.compile(regexp,Pattern.CASE_INSENSITIVE);
-
+        
+        
+        BufferedReader br = new BufferedReader(new StringReader(text));
+        String line;
         StringBuffer inputStr = new StringBuffer();
-    	for(Line singleLine: text){
-    		inputStr.append(singleLine);
-    	}
+        
+        try {
+			while ((line = br.readLine()) != null) {
+				 inputStr.append(line);
+			}
+			br.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
         Matcher m;
     	m = p.matcher(inputStr);
     	while (m.find()) {
@@ -247,15 +242,9 @@ public class NotepadModel implements ModelInterface {
 		
 	}
 	
-	public List<Line> getText() {
-		return this.text;
-	}
-	
+	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < text.size(); i++) {
-			sb.append(text.get(i).toString() + "\n");
-		}
+		StringBuilder sb = new StringBuilder(text);
 		return sb.toString();
 	}
 	
@@ -263,7 +252,15 @@ public class NotepadModel implements ModelInterface {
 		return selectedURL;
 	}
 	
-	public void setSelectedURL(String url) {
-		this.selectedURL = url;
+	public void setSelectedURL(Object object) {
+		this.selectedURL = (String) object;
+	}
+	
+	public void setClipboardText(String selectedText) {
+		this.clipboard = selectedText;
+	}
+	
+	public String getClipboardText() {
+		return this.clipboard;
 	}
 }

@@ -22,7 +22,7 @@ public class NotepadView extends JFrame {
 	private JSplitPane splitPane;
 	private JFileChooser filePicker;
 	private JPanel linkPanel;
-	private JList<String> linkList;
+	private JList linkList;
 	private JScrollPane linkScroller;
 	private boolean modified, linksShowing;
 	private JButton buttonNew, buttonOpen, buttonSave, buttonCut, buttonCopy, buttonPaste, buttonLinks, buttonOpenURL;
@@ -129,7 +129,9 @@ public class NotepadView extends JFrame {
 	private KeyListener keyPressed = new KeyAdapter() { 
 		public void keyPressed(KeyEvent e) { 
 			modified = true; 
-			buttonSave.setEnabled(true); 
+			buttonSave.setEnabled(true);
+			int pos = textArea.getCaretPosition();
+			System.out.println(pos);
 		} 
 	};
 	
@@ -168,6 +170,10 @@ public class NotepadView extends JFrame {
 	
 	public void setTitle(String title) {
 		this.title = title;
+	}
+	
+	public String getSelectedText () {
+		return textArea.getSelectedText();
 	}
 	
 	

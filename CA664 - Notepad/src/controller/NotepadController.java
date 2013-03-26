@@ -42,7 +42,6 @@ public class NotepadController implements ActionListener, ListSelectionListener 
 		if (command.equals("New")) {
 			System.out.println("New Pressed!");
 			
-			
 		} else if(command.equals("Open")) {
 			System.out.println("Open Pressed!");
 			String title = view.openFilePicker();
@@ -68,11 +67,11 @@ public class NotepadController implements ActionListener, ListSelectionListener 
 			
 		} else if(command.equals("Copy")) {
 			System.out.println("Copy Pressed!");
-			
+			model.setClipboardText(view.getSelectedText());
+			System.out.println("Text: " + model.getClipboardText());
 			
 		} else if(command.equals("Paste")) {
 			System.out.println("Paste Pressed!");
-			
 			
 		} else if(command.equals("Find")) {
 			System.out.println("Find Pressed!");
@@ -120,7 +119,7 @@ public class NotepadController implements ActionListener, ListSelectionListener 
 	
 	@Override
 	public void valueChanged(ListSelectionEvent event) {
-		JList<String> list = (JList<String>) event.getSource();
+		JList list = (JList) event.getSource();
 		if (event.getValueIsAdjusting() == false) {
 			model.setSelectedURL(list.getSelectedValue());
         }

@@ -21,13 +21,13 @@ public interface ModelInterface {
 	
 	
 	/*** Manipulation ***/
-	public List<Position> find(String inputText);
+	public List<Integer> find(String inputText);
 	// Text Editing
 	public SelectedText select();
-	public String insert(String text, int lineNumber, int charNumber);
+	public void insert(String string, int index);
 	
 	// Insert characters over the top of existing character. No need to bump down other characters
-	public String insertOver(String text, int lineNumber, int charNumber);
+	public void insertOver(String string, int index);
 	public String copy(int lineNumber, int charNumber);
 	public String cut(int lineNumber, int charNumber);
 

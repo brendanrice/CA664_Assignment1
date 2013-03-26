@@ -18,15 +18,21 @@ public class ModelTest {
 		
 		System.out.println("Links Found: " + myModel.retrieveLinks());
 		
-		List<Position> points = myModel.find("how");
+		List<Integer> points = myModel.find("how");
 		for (int i = 0; i < points.size(); i++) {
-			System.out.println("Position - Line: " + points.get(i).lineNo + ", Char: " + points.get(i).charNo);
+			System.out.println("Char: " + points.get(i));
 		}
 		
 		List<String> links = myModel.retrieveLinks();
 		for (int i = 0; i < links.size(); i++) {
 			System.out.println("Link: " + links.get(i));
 		}
+		
+		myModel.insertOver("happy", 3);
+		
+		
+		String text = myModel.toString();
+		System.out.println(text);
 		
 	}
 
