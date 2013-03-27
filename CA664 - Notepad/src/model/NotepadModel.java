@@ -10,6 +10,7 @@ import java.io.StringReader;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,13 +23,19 @@ public class NotepadModel implements ModelInterface {
 	private String selectedURL;
 	private String clipboard;
 	private String text;
-
+	private Stack<String> undoStack;
+	private Stack<String> redoStack;
+	
 	public NotepadModel() {
 		text = new String();
+		undoStack = new Stack<String>();
+		redoStack = new Stack<String>();
 	}
 	
 	public NotepadModel(String path) {
+		this();
 		openFile(path);
+		
 	}
 	
 	
@@ -125,17 +132,6 @@ public class NotepadModel implements ModelInterface {
 		return points;
 	}
 	
-	/*
-	public int getPositionOnLine(String searchText, String line) {
-		
-		if (getPositionOnLine(searchText, line.substring(line.indexOf(searchText) + searchText.length())) == -1)
-			System.out.println("Base Case: " + );
-			return 0;
-		else 
-			return getPositionOnLine(searchText, line.substring(line.indexOf(searchText) + searchText.length()));
-			
-	}
-	*/
 	
 	@Override
 	public int getCharCount() {
@@ -191,13 +187,44 @@ public class NotepadModel implements ModelInterface {
 		}
 		this.text = new String(array);
 	}
+
+	@Override
+	public SelectedText select() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
+	/**** Undo/Redo ****/
+	@Override
+	public void undo() {
+		redoStack.push(text);
+		this.text = undoStack.pop();
+	}
 	
 	@Override
 	public void redo() {
-		// TODO Auto-generated method stub
-		
+		undoStack.push(text);
+		this.text = redoStack.pop();
 	}
-
+	
+	public void addToUndo() {
+		undoStack.push(text);
+	}
+	
+	public void emptyRedo() {
+		redoStack.clear();
+	}
+	
+	public boolean canUndo() {
+		return !undoStack.isEmpty();
+	}
+	
+	public boolean canRedo() {
+		return !redoStack.isEmpty();
+	}
+	
+	/**** URL Methods ****/
 	@Override
 	public List<String> retrieveLinks() {
         //String text = "Please go to http://google.com and then mailto:brendan@rice.com to download a file from www.google.com ftp://brendanrice:pass@github/assignemnt.txt";
@@ -229,24 +256,6 @@ public class NotepadModel implements ModelInterface {
     	}
         return resultList;
     } 
-
-	@Override
-	public SelectedText select() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void undo() {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(text);
-		return sb.toString();
-	}
 	
 	public String getSelectedURL() {
 		return selectedURL;
@@ -256,11 +265,25 @@ public class NotepadModel implements ModelInterface {
 		this.selectedURL = (String) object;
 	}
 	
+	
+	/**** Clipboard ****/
 	public void setClipboardText(String selectedText) {
 		this.clipboard = selectedText;
 	}
 	
 	public String getClipboardText() {
 		return this.clipboard;
+	}
+	
+	
+	/**** Get/Set Text ****/
+	public void setText(String text) {
+		this.text = text;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(text);
+		return sb.toString();
 	}
 }

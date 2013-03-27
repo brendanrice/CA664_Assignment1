@@ -3,6 +3,9 @@ package controller;
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -27,6 +30,7 @@ public class NotepadController implements ActionListener, ListSelectionListener 
 		this.model = model;
 		view.registerActionListeners(this);
 		view.registerListListener(this);
+		view.registerTextListener(keyPressed);
 		
 		java.awt.EventQueue.invokeLater(new Runnable() {
 	          public void run() {
@@ -41,6 +45,8 @@ public class NotepadController implements ActionListener, ListSelectionListener 
 		
 		if (command.equals("New")) {
 			System.out.println("New Pressed!");
+			this.model = new NotepadModel();
+			updateView();
 			
 		} else if(command.equals("Open")) {
 			System.out.println("Open Pressed!");
@@ -61,6 +67,28 @@ public class NotepadController implements ActionListener, ListSelectionListener 
 			System.out.println("Exit Pressed!");
 			
 			
+		} else if(command.equals("Undo")) {
+			System.out.println("Undo Pressed!");
+			model.undo();
+			updateView();
+			view.enableRedo();
+			if (model.canUndo()) {
+				view.enableUndo();
+			} else {
+				view.disableUndo();
+			}
+			
+		} else if(command.equals("Redo")) {
+			System.out.println("Redo Pressed!");
+			model.redo();
+			updateView();
+			view.enableUndo();
+			if (model.canRedo()) {
+				view.enableRedo();
+			} else {
+				view.disableRedo();
+			}
+			
 		} else if(command.equals("Cut")) {
 			System.out.println("Cut Pressed!");
 			
@@ -72,6 +100,8 @@ public class NotepadController implements ActionListener, ListSelectionListener 
 			
 		} else if(command.equals("Paste")) {
 			System.out.println("Paste Pressed!");
+			
+			updateData();
 			
 		} else if(command.equals("Find")) {
 			System.out.println("Find Pressed!");
@@ -124,6 +154,24 @@ public class NotepadController implements ActionListener, ListSelectionListener 
 			model.setSelectedURL(list.getSelectedValue());
         }
 	}
-
 	
+	private KeyListener keyPressed = new KeyAdapter() { 
+		public void keyPressed(KeyEvent e) { 
+			view.keyPressed();
+			model.emptyRedo();
+			model.addToUndo();
+			model.setText(view.getText());
+			view.enableRedo();
+			view.disableRedo();
+			
+		} 
+	};
+	
+	private void updateData() {
+		model.setText(view.getText());
+	}
+
+	private void updateView() {
+		view.updateTextArea(model.toString());
+	}
 }

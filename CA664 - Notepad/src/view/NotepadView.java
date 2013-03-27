@@ -25,7 +25,7 @@ public class NotepadView extends JFrame {
 	private JList linkList;
 	private JScrollPane linkScroller;
 	private boolean modified, linksShowing;
-	private JButton buttonNew, buttonOpen, buttonSave, buttonCut, buttonCopy, buttonPaste, buttonLinks, buttonOpenURL;
+	private JButton buttonNew, buttonOpen, buttonSave, buttonCut, buttonCopy, buttonPaste, buttonLinks, buttonOpenURL, buttonUndo, buttonRedo;
 	private JMenuItem New, Open, Save, SaveAs, Cut, Copy, Paste, Find, WordCount, Exit, Links; 
 	private List<JButton> buttonArray;
 	private List<JMenuItem> menuItemArray;
@@ -60,7 +60,6 @@ public class NotepadView extends JFrame {
 		this.setUpButtons();
 		this.setUpMenuBar();
 		this.pack(); 
-		textArea.addKeyListener(keyPressed);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE); 
 		//setTitle(currentFile); 
 		setVisible(true);
@@ -114,9 +113,11 @@ public class NotepadView extends JFrame {
 		buttonCopy = new JButton(new ImageIcon("resources/copy.gif"));		buttonCopy.setName("Copy");
 		buttonPaste = new JButton(new ImageIcon("resources/paste.gif"));	buttonPaste.setName("Paste");
 		buttonLinks = new JButton(new ImageIcon("resources/paste.gif"));	buttonLinks.setName("Display Links");
-		tools.add(buttonNew); tools.add(buttonOpen); tools.add(buttonSave); tools.addSeparator(); tools.add(buttonCut); tools.add(buttonCopy); tools.add(buttonPaste); tools.addSeparator(); tools.add(buttonLinks); 
+		buttonUndo = new JButton(new ImageIcon("resources/paste.gif"));		buttonUndo.setName("Undo");
+		buttonRedo = new JButton(new ImageIcon("resources/paste.gif"));		buttonRedo.setName("Redo");
+		tools.add(buttonNew); tools.add(buttonOpen); tools.add(buttonSave); tools.addSeparator(); tools.add(buttonUndo); tools.add(buttonRedo); tools.addSeparator(); tools.add(buttonCut); tools.add(buttonCopy); tools.add(buttonPaste); tools.addSeparator(); tools.add(buttonLinks); 
 		buttonArray.add(buttonNew); buttonArray.add(buttonOpen); buttonArray.add(buttonSave); buttonArray.add(buttonCut); buttonArray.add(buttonCopy); buttonArray.add(buttonPaste); buttonArray.add(buttonLinks); 
-		buttonArray.add(buttonOpenURL); 
+		buttonArray.add(buttonOpenURL); buttonArray.add(buttonUndo); buttonArray.add(buttonRedo); 
 		
 		buttonSave.setEnabled(false);
 	}
@@ -126,15 +127,7 @@ public class NotepadView extends JFrame {
 		menuItemArray = new ArrayList<JMenuItem>(10);
 	}
 	
-	private KeyListener keyPressed = new KeyAdapter() { 
-		public void keyPressed(KeyEvent e) { 
-			modified = true; 
-			buttonSave.setEnabled(true);
-			int pos = textArea.getCaretPosition();
-			System.out.println(pos);
-		} 
-	};
-	
+	/**** Register Listeners ****/
 	public void registerActionListeners(ActionListener listener) {
 		String commandName;
 		
@@ -156,6 +149,12 @@ public class NotepadView extends JFrame {
 		linkList.addListSelectionListener(listener);
 	}
 	
+	public void registerTextListener(KeyListener listener ) {
+		textArea.addKeyListener(listener);
+	}
+	
+	
+	/**** Other ****/
 	public String openFilePicker() {
 		String location = "";
 			if (filePicker.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) { 
@@ -164,8 +163,14 @@ public class NotepadView extends JFrame {
 		return location;
 	}
 	
+	
+	/**** Get/Set TextArea ****/
 	public void updateTextArea(String text) {
 		textArea.setText(text);
+	}
+	
+	public String getText() {
+		return textArea.getText();
 	}
 	
 	public void setTitle(String title) {
@@ -176,6 +181,24 @@ public class NotepadView extends JFrame {
 		return textArea.getSelectedText();
 	}
 	
+	public void keyPressed() {
+		modified = true; 
+		buttonSave.setEnabled(true);
+		int pos = textArea.getCaretPosition();
+		System.out.println(pos);
+	}
+	public void enableUndo() {
+		this.buttonUndo.setEnabled(true);
+	}
+	public void disableUndo() {
+		this.buttonUndo.setEnabled(false);
+	}
+	public void enableRedo() {
+		this.buttonRedo.setEnabled(true);
+	}
+	public void disableRedo() {
+		this.buttonRedo.setEnabled(false);
+	}
 	
-
+	
 }

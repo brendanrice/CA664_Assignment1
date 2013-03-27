@@ -1,6 +1,6 @@
 package model.line;
 
 public class SelectedText {
-	Position from;
-	Position to;
+	int from;
+	int to;
 }
