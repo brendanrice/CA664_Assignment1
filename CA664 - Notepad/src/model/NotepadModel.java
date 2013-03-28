@@ -9,14 +9,13 @@ import java.io.InputStream;
 import java.io.StringReader;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import model.line.Line;
-import model.line.Position;
-import model.line.SelectedText;
+
 
 public class NotepadModel implements ModelInterface {
 	//private List<Line> text;
@@ -25,9 +24,17 @@ public class NotepadModel implements ModelInterface {
 	private String text;
 	private Stack<String> undoStack;
 	private Stack<String> redoStack;
+	private List<Integer> findList;
+	private boolean newSearch;
+	private Iterator<Integer> findIterator;
+	private String searchString;
+	private String prevSearchString;
+	private String filePath;
 	
 	public NotepadModel() {
 		text = new String();
+		searchString = "";
+		filePath = "Untitled";
 		undoStack = new Stack<String>();
 		redoStack = new Stack<String>();
 	}
@@ -82,20 +89,20 @@ public class NotepadModel implements ModelInterface {
 	}
 
 	@Override
-	public String copy(int lineNumber, int charNumber) {
-		// TODO Auto-generated method stub
-		return null;
+	public void cut(int from, int to) {
+		String preText = text.substring(0, from);
+		String postText = text.substring(to);
+		
+		this.text = preText + postText;		
+		
 	}
-
+	
+	/********* FIND METHODS *********/
+	/*** Clunky, should really be abstracted into it's own class... ***/
 	@Override
-	public String cut(int lineNumber, int charNumber) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Integer> find(String searchString) {
-		List<Integer> points = new ArrayList<Integer>(0);
+	public List<Integer> find(String string) {
+		this.searchString = string;
+		findList = new ArrayList<Integer>(0);
 		
 		int indexInSubstring;
 		int indexTemp;
@@ -110,28 +117,55 @@ public class NotepadModel implements ModelInterface {
 		indexTemp = 0;
 		charNo = 0;
 		numFound = 0;
-		while (tempText.indexOf(searchString) != -1) {
+		while (tempText.indexOf(string) != -1) {
 			if (numFound == 0) {
-				indexInSubstring = tempText.indexOf(searchString);
+				indexInSubstring = tempText.indexOf(string);
 				indexTemp = indexInSubstring;
 				charNo = indexInSubstring;
 			} else {
 				//indexTemp = indexInSubstring;
-				indexInSubstring = tempText.indexOf(searchString);
-				indexTemp += indexInSubstring + searchString.length();
+				indexInSubstring = tempText.indexOf(string);
+				indexTemp += indexInSubstring + string.length();
 				charNo = indexTemp;
 			}
 			numFound++;
 			//System.out.println("Line: " + i + ",Index: " + charNo);
-			tempText = tempText.substring(indexInSubstring + searchString.length());
+			tempText = tempText.substring(indexInSubstring + string.length());
 			//System.out.println("Substring: " + line);
 			
-			points.add(charNo);
+			findList.add(charNo);
 		}
 		
-		return points;
+		return findList;
 	}
 	
+	public boolean isNewSearch() {
+		return newSearch;
+	}
+	public void setNewSearch(boolean b) {
+		newSearch = b;
+	}
+	public void setFindList(List<Integer> list) {
+		this.findList = list;
+	}
+	public void setFindIterator() {
+		this.findIterator = findList.iterator();
+	}
+	public Integer getNextFind() {
+		Integer result = null;
+		if (findIterator.hasNext()) {
+			result = findIterator.next();
+		}
+		return result;
+	}
+	public void setSearchString(String s) {
+		this.prevSearchString = this.searchString;
+		this.searchString = s;
+	}
+	public String getPrevSearchString() {
+		return this.prevSearchString;
+	}
+	/*********** END FIND METHODS ***********/
 	
 	@Override
 	public int getCharCount() {
@@ -148,14 +182,23 @@ public class NotepadModel implements ModelInterface {
 
 	@Override
 	public int getWordCount() {
-		int wordCount = text.split(" ").length;
+		int wordCount = text.split("\\s+").length;
 		return wordCount;
 	}
 
 	@Override
 	public void insert(String string, int index) {
+		if ((text.length()) == index-1) {
+			System.out.println("Index is at end");
+			index -= 1;
+		}
+		
+		System.out.println(text.length() + " Index:" + index);
 		String preText = text.substring(0, index);
-		String postText = text.substring(index);
+		String postText = "";
+		try { postText = text.substring(index); } catch (Exception e) {}
+		System.out.println(preText);
+		System.out.println(postText);
 		
 		char[] stringArray = string.toCharArray();
 		
@@ -165,16 +208,20 @@ public class NotepadModel implements ModelInterface {
 		
 		for (int i = 0; i < preArray.length; i++) {
 			newText[i] = preArray[i];
+			System.out.print(newText[i]);
 		}
 		
 		for (int i = 0; i < stringArray.length; i++) {
 			newText[index + i] = stringArray[i];
+			System.out.print(newText[index + i]);
 		}
 		
 		for (int i = 0; i < postArray.length; i++) {
-			newText[i] = postArray[i];
+			newText[stringArray.length + index + i] = postArray[i];
+			System.out.print(newText[i]);
 		}
 		
+		System.out.println(this.text);
 		this.text = new String(newText);
 	}
 
@@ -187,13 +234,6 @@ public class NotepadModel implements ModelInterface {
 		}
 		this.text = new String(array);
 	}
-
-	@Override
-	public SelectedText select() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	
 	/**** Undo/Redo ****/
 	@Override
@@ -286,4 +326,13 @@ public class NotepadModel implements ModelInterface {
 		StringBuilder sb = new StringBuilder(text);
 		return sb.toString();
 	}
+	
+	/**** Filepath ****/
+	public void setFilePath(String path) {
+		this.filePath = path;
+	}
+	public String getFilePath() {
+		return this.filePath;	
+	}
+
 }

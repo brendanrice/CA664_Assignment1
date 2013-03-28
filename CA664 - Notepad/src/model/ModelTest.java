@@ -2,7 +2,6 @@ package model;
 
 import java.util.List;
 
-import model.line.Position;
 
 public class ModelTest {
 	private static String inputPath = "src/data.txt";

@@ -2,7 +2,6 @@ package model;
 
 import java.util.List;
 
-import model.line.*;
 
 public interface ModelInterface {
 	
@@ -23,13 +22,18 @@ public interface ModelInterface {
 	/*** Manipulation ***/
 	public List<Integer> find(String inputText);
 	// Text Editing
-	public SelectedText select();
+	// Provided by JTextArea
+	// public SelectedText select();
 	public void insert(String string, int index);
 	
 	// Insert characters over the top of existing character. No need to bump down other characters
 	public void insertOver(String string, int index);
-	public String copy(int lineNumber, int charNumber);
-	public String cut(int lineNumber, int charNumber);
+	// Provided by JTextArea
+	//public String copy(int from, int to);
+	// Doesn't need to return string as this will already be provideded by getHighlights() in JtextArea
+	public void cut(int from, int to);
+	// Functionality provided by insert(String text, int index)
+	//public void paste(String string, int index);
 
 	
 	//Undo/Redo - Stack

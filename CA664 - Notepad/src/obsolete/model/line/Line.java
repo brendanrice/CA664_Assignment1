@@ -1,4 +1,4 @@
-package model.line;
+package obsolete.model.line;
 
 public class Line {
 	private static final int CAP = 200;

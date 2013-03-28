@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -24,6 +25,7 @@ public class NotepadView extends JFrame {
 	private JPanel linkPanel;
 	private JList linkList;
 	private JScrollPane linkScroller;
+	private FindDialog popup;
 	private boolean modified, linksShowing;
 	private JButton buttonNew, buttonOpen, buttonSave, buttonCut, buttonCopy, buttonPaste, buttonLinks, buttonOpenURL, buttonUndo, buttonRedo;
 	private JMenuItem New, Open, Save, SaveAs, Cut, Copy, Paste, Find, WordCount, Exit, Links; 
@@ -112,14 +114,15 @@ public class NotepadView extends JFrame {
 		buttonCut = new JButton(new ImageIcon("resources/cut.gif"));		buttonCut.setName("Cut");
 		buttonCopy = new JButton(new ImageIcon("resources/copy.gif"));		buttonCopy.setName("Copy");
 		buttonPaste = new JButton(new ImageIcon("resources/paste.gif"));	buttonPaste.setName("Paste");
-		buttonLinks = new JButton(new ImageIcon("resources/paste.gif"));	buttonLinks.setName("Display Links");
-		buttonUndo = new JButton(new ImageIcon("resources/paste.gif"));		buttonUndo.setName("Undo");
-		buttonRedo = new JButton(new ImageIcon("resources/paste.gif"));		buttonRedo.setName("Redo");
+		buttonLinks = new JButton(new ImageIcon("resources/link.png"));	buttonLinks.setName("Display Links");
+		buttonUndo = new JButton(new ImageIcon("resources/undo.png"));		buttonUndo.setName("Undo");
+		buttonRedo = new JButton(new ImageIcon("resources/redo.png"));		buttonRedo.setName("Redo");
 		tools.add(buttonNew); tools.add(buttonOpen); tools.add(buttonSave); tools.addSeparator(); tools.add(buttonUndo); tools.add(buttonRedo); tools.addSeparator(); tools.add(buttonCut); tools.add(buttonCopy); tools.add(buttonPaste); tools.addSeparator(); tools.add(buttonLinks); 
 		buttonArray.add(buttonNew); buttonArray.add(buttonOpen); buttonArray.add(buttonSave); buttonArray.add(buttonCut); buttonArray.add(buttonCopy); buttonArray.add(buttonPaste); buttonArray.add(buttonLinks); 
 		buttonArray.add(buttonOpenURL); buttonArray.add(buttonUndo); buttonArray.add(buttonRedo); 
 		
 		buttonSave.setEnabled(false);
+		buttonPaste.setEnabled(false);
 	}
 	
 	private void setUpButtons() {
@@ -154,15 +157,43 @@ public class NotepadView extends JFrame {
 	}
 	
 	
-	/**** Other ****/
+	/**** Open ****/
 	public String openFilePicker() {
 		String location = "";
-			if (filePicker.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) { 
+		filePicker.setDialogTitle("Open");
+			if (filePicker.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
 				location = filePicker.getSelectedFile().getAbsolutePath();
 			}
 		return location;
 	}
 	
+	/**** Save ****/
+	public String saveFilePicker() {
+		String location = "";
+		filePicker.setDialogTitle("Save As");
+			if (filePicker.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) { 
+				location = filePicker.getSelectedFile().getAbsolutePath();
+			}
+		return location;
+	}
+	
+	/*** Other ***/
+	public void showStatistics(String message) {
+		JOptionPane popup = new JOptionPane(message);
+		popup.setSize(200, 100);
+		popup.setVisible(true);
+		JOptionPane.showMessageDialog(this, message, "Word Count", JOptionPane.PLAIN_MESSAGE);
+	}
+	
+	public void showFindDialog(ActionListener listener) {
+		popup = new FindDialog(this);
+		popup.setVisible(true);
+		popup.setActionListeners(listener);
+	}
+	
+	public String getFindInput() {
+		return popup.getInput();
+	}
 	
 	/**** Get/Set TextArea ****/
 	public void updateTextArea(String text) {
@@ -173,13 +204,14 @@ public class NotepadView extends JFrame {
 		return textArea.getText();
 	}
 	
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	
 	public String getSelectedText () {
 		return textArea.getSelectedText();
 	}
+	
+	public JTextArea getTextArea () {
+		return textArea;
+	}
+	
 	
 	public void keyPressed() {
 		modified = true; 
@@ -198,6 +230,12 @@ public class NotepadView extends JFrame {
 	}
 	public void disableRedo() {
 		this.buttonRedo.setEnabled(false);
+	}
+	public void enablePaste() {
+		this.buttonPaste.setEnabled(true);
+	}
+	public void disablePaste() {
+		this.buttonPaste.setEnabled(false);
 	}
 	
 	
